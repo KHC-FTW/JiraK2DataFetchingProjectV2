@@ -1,0 +1,266 @@
+.form-container {
+  width: 100%;
+  max-width: 550px;
+  min-height: 85vh; /* Changed from fixed height to min-height */
+  margin: 0 auto;
+  padding: 13px 30px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.13);
+  display: flex;
+  flex-direction: column;
+  overflow: visible; /* Allow content to overflow container */
+}
+
+/* Make the form take up all available space with top alignment */
+.form-container form {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: flex-start; /* Align content to the top */
+}
+
+.form-middle-section {
+  margin-bottom: 20px;
+}
+
+.form-header {
+  text-align: center; /* Changed from center */
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 10px;
+  text-align: left; /* Ensure all text is left-aligned */
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 7px;
+  font-weight: bold;
+  color: #555;
+}
+
+.form-group input[type="email"], #email-domain {
+  width: 20%;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.form-group input[type="email"]{
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+}
+
+.form-group input[type="email"]:focus, #email-domain:focus {
+  outline: none;
+  background-color: #e2f5ff;
+}
+
+#email-domain{
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  padding-left: 1px;
+}
+
+.name-domain-sep{
+  padding: 8px 1px;
+  border: 1px solid #ddd;
+  border-left: none;
+  border-right: none;
+  font-size: 16px;
+  width: 2ch;
+}
+
+.name-domain-sep:focus{
+  outline: none;
+}
+
+@media (max-width: 600px) {
+  .form-group input[type="email"] {
+    width: 90%;
+  }
+}
+
+/* Horizontal layout for year and month */
+.year-batch-inputs-container {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.year-batch-inputs-container label{
+    display: block;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #555;
+}
+
+.year-batch-input-group {
+  /* flex: 1; */
+  min-width: 150px; /* Minimum width to prevent too narrow fields */
+  text-align: left; /* Ensure left alignment */
+  margin-right: 30px;
+}
+
+.year-batch-input-group label {
+  text-align: left;
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  font-size: 0.93rem;
+  color: #555;
+}
+
+.counter-input {
+  display: flex;
+  align-items: center;
+}
+
+.counter-input input {
+  width: 40px;
+  text-align: center;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 0;
+  font-size: 16px;
+  margin: 0;
+}
+
+.counter-btn {
+  background-color: #eaeaea;
+  border: 1px solid #ddd;
+  height: 40px;
+  width: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.counter-btn:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.counter-btn:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.counter-btn:hover {
+  background-color: #d5d5d5;
+}
+
+.button-group {
+  margin: 10px 0;
+  display: flex;
+  flex-wrap: wrap; /* Allow buttons to wrap */
+  gap: 20px;
+  justify-content: flex-start; /* Align to the left */
+  width: 100%; /* Full width */
+}
+
+.submit-btn {
+  padding: 10px 25px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.3s ease;
+  min-width: 120px; /* Minimum width for buttons */
+  /* margin-bottom: 10px; */
+}
+
+/* Remove flex:1 to prevent stretching */
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  background-color: #dbdbdb;
+  cursor: not-allowed;
+}
+
+.get-bi-email {
+  background-color: #4caf50;
+  color: white;
+}
+
+.get-bi-files {
+  background-color: #2196f3;
+  color: white;
+}
+
+.get-urg-ser-spe-email {
+  background-color: #ff9800;
+  color: white;
+}
+
+.get-bi-email:hover:not(:disabled) {
+  background-color: #3e8e41;
+}
+
+.get-bi-files:hover:not(:disabled) {
+  background-color: #0b7dda;
+}
+
+.get-urg-ser-spe-email:hover:not(:disabled) {
+  background-color: #e68a00;
+}
+
+.error {
+  border-color: #ff3333 !important;
+}
+
+/* Error message container with fixed height */
+.message-container {
+  min-height: 24px; /* Reserve space for error message */
+  margin-top: 3px;
+}
+
+.error-message {
+  color: #ff3333;
+  font-size: 14px;
+  text-align: left;
+}
+
+.help-text {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+  text-align: left;
+}
+
+.counter-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f0f0f0;
+}
+
+.response-message{
+  margin: 20px 0;
+  font-size: 1rem;
+  text-align: left;
+  font-weight: bold;
+}
+
+.success-api-resp{
+  color: green;
+}
+
+.error-api-resp{
+  color: red;
+}
+
+.disclaimer{
+  /* display: flex;
+  flex-direction: column-reverse; */
+  text-align: left;
+  margin-top: auto;
+  font-size: 0.35rem;
+}
