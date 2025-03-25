@@ -17,15 +17,8 @@ import java.util.Map;
 public class RestController {
 
     @ResponseBody
-    @GetMapping(value = "/v1/testGetFile", produces = "application/zip")
-    public byte[] getImageWithMediaType() throws IOException {
-        Path filePath = Paths.get("C:\\Users\\CKH637\\Desktop\\CKH637_DocsAndStorage\\_Project\\JiraK2DataFetchingProjectV2\\test.zip");
-        return Files.readAllBytes(filePath);
-    }
-
-    @ResponseBody
     @GetMapping(value = "/v1/get-zip-by-batch/{year_batch}", produces = "application/zip")
-    public byte[] getZipByBatch(@PathVariable("year_batch") String year_batch) throws IOException {
+    public byte[] getZipByBatch(@PathVariable("year_batch") String year_batch) {
         return PayloadHandler.handleGetZipByBatch(year_batch);
     }
 

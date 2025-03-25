@@ -88,6 +88,15 @@ const Form = () => {
         responseType: 'blob' // Important for binary data
       })
       .then(response => {
+        // Check if response data is valid
+        if (!response.data || response.data.size === 0){
+          setApiResponse({ 
+            status: 'error', 
+            message: `Failed to download ${yearBatchNo}.zip. Something might have gone wrong in the backend.` 
+          });
+          return;
+        }
+
         // Create a blob from the response data
         const blob = new Blob([response.data]);
         
@@ -135,7 +144,7 @@ const Form = () => {
           console.error('Error:', err);
           setSubmitted(false);
         });
-      console.log('Submit Get Urgent/Service/Special Email:', completeEmail);
+      // console.log('Submit Get Urgent/Service/Special Email:', completeEmail);
     }
   };
 

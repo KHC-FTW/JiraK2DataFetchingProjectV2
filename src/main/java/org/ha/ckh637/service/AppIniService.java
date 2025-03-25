@@ -37,6 +37,7 @@ public final class AppIniService {
             System.out.println("\nJson data saved with the following:\n");
             System.out.println(SingletonConfig.getInstance());
             System.out.println();
+            // clear any previous leftover cached files, if any
             DirectoryService.delTempDestDirectory();
         } catch (IOException e) {
             e.printStackTrace();

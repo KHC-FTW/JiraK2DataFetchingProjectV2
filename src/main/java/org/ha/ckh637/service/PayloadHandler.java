@@ -27,18 +27,26 @@ public final class PayloadHandler {
                 String batch = yearBatch[1].length() == 1 ? "0" + yearBatch[1] : yearBatch[1];
                 String year_batch = year + "-" + batch;
                 try{
+                    // we first lock to access the critical section
                     READ_LOCK.lock();
                     Map<String, CachedData> cachedDataMap = DATA_CENTER.getBatchCachedDataMap();
                     if (cachedDataMap.containsKey(year_batch)){
                         CachedData cachedData = cachedDataMap.get(year_batch);
-                        byte[] zipFileByte = cachedData.getAttachment();
-                        if (zipFileByte != null){
-                            return zipFileByte;
-                        }
+                        return cachedData.getAttachment();
                     }else{
-                        READ_LOCK.unlock();
+                        // if we can't find the cached data, we unlock the read lock and lock the write lock
                         try{
+                            READ_LOCK.unlock();
                             WRITE_LOCK.lock();
+                            // here we re-try to get the cached data
+                            // because there is a chance that a thread was put to
+                            // sleep at the write lock and when it wakes up, cached data
+                            // may already be make available by another thread
+                            // Doing so avoids unnecessary re-computation e.g. API calls
+                            if (cachedDataMap.containsKey(year_batch)){
+                                CachedData cachedData = cachedDataMap.get(year_batch);
+                                return cachedData.getAttachment();
+                            }
                             RequestData requestData = new RequestData(year, batch);
                             eventSequenceBiweekly_V2_multiThreaded(requestData, year_batch);
                         }finally {
@@ -47,10 +55,7 @@ public final class PayloadHandler {
                         READ_LOCK.lock();
                         if (cachedDataMap.containsKey(year_batch)){
                             CachedData cachedData = cachedDataMap.get(year_batch);
-                            byte[] zipFileByte = cachedData.getAttachment();
-                            if (zipFileByte != null){
-                                return zipFileByte;
-                            }
+                            return cachedData.getAttachment();
                         }
                     }
                 }finally {
@@ -71,18 +76,26 @@ public final class PayloadHandler {
                 READ_LOCK.lock();
                 String cachedUrgSerSpeEmailHTML = DATA_CENTER.getCachedUrgSerSpeEmailHTML();
                 if (!cachedUrgSerSpeEmailHTML.isBlank()){
-                    EmailService.sendUrgentServiceEmail_V2(email_address, cachedUrgSerSpeEmailHTML);
-                    return Map.of("status", "success",
-                            "message", "Success! Please check your email inbox.");
+                    if (EmailService.sendUrgentServiceEmail_V2(email_address, cachedUrgSerSpeEmailHTML)){
+                        return Map.of("status", "success",
+                                "message", "Success! Please check your email inbox.");
+                    }else{
+                        return Map.of("status", "error",
+                                "message", "Failed to send email. Please try again later.");
+                    }
                 }else{
                     try{
                         READ_LOCK.unlock();
                         WRITE_LOCK.lock();
                         cachedUrgSerSpeEmailHTML = DATA_CENTER.getCachedUrgSerSpeEmailHTML();
                         if (!cachedUrgSerSpeEmailHTML.isBlank()){
-                            EmailService.sendUrgentServiceEmail_V2(email_address, cachedUrgSerSpeEmailHTML);
-                            return Map.of("status", "success",
-                                    "message", "Success! Please check your email inbox.");
+                            if (EmailService.sendUrgentServiceEmail_V2(email_address, cachedUrgSerSpeEmailHTML)){
+                                return Map.of("status", "success",
+                                        "message", "Success! Please check your email inbox.");
+                            }else{
+                                return Map.of("status", "error",
+                                        "message", "Failed to send email. Please try again later.");
+                            }
                         }
                         eventSequenceUrgSerSpe();
                     }finally {
@@ -91,9 +104,13 @@ public final class PayloadHandler {
                     READ_LOCK.lock();
                     cachedUrgSerSpeEmailHTML = DATA_CENTER.getCachedUrgSerSpeEmailHTML();
                     if (!cachedUrgSerSpeEmailHTML.isBlank()){
-                        EmailService.sendUrgentServiceEmail_V2(email_address, cachedUrgSerSpeEmailHTML);
-                        return Map.of("status", "success",
-                                "message", "Success! Please check your email inbox.");
+                        if (EmailService.sendUrgentServiceEmail_V2(email_address, cachedUrgSerSpeEmailHTML)){
+                            return Map.of("status", "success",
+                                    "message", "Success! Please check your email inbox.");
+                        }else{
+                            return Map.of("status", "error",
+                                    "message", "Failed to send email. Please try again later.");
+                        }
                     }
                     return Map.of("status", "error",
                             "message", "Failed to send email. Please try again later.");
@@ -123,17 +140,25 @@ public final class PayloadHandler {
                         READ_LOCK.lock();
                         Map<String, CachedData> cachedDataMap = DATA_CENTER.getBatchCachedDataMap();
                         if (cachedDataMap.containsKey(year_batch)){
-                            EmailService.sendBiweeklyEmailWithAttachment(email_address, year_batch, cachedDataMap.get(year_batch));
-                            return Map.of("status", "success",
-                                    "message", "Success! Please check your email inbox.");
+                            if (EmailService.sendBiweeklyEmailWithAttachment(email_address, year_batch, cachedDataMap.get(year_batch))){
+                                return Map.of("status", "success",
+                                        "message", "Success! Please check your email inbox.");
+                            }else{
+                                return Map.of("status", "error",
+                                        "message", "Failed to send email. Please try again later.");
+                            }
                         }else{
-                            READ_LOCK.unlock();
                             try{
+                                READ_LOCK.unlock();
                                 WRITE_LOCK.lock();
                                 if (cachedDataMap.containsKey(year_batch)){
-                                    EmailService.sendBiweeklyEmailWithAttachment(email_address, year_batch, cachedDataMap.get(year_batch));
-                                    return Map.of("status", "success",
-                                            "message", "Success! Please check your email inbox.");
+                                    if (EmailService.sendBiweeklyEmailWithAttachment(email_address, year_batch, cachedDataMap.get(year_batch))){
+                                        return Map.of("status", "success",
+                                                "message", "Success! Please check your email inbox.");
+                                    }else{
+                                        return Map.of("status", "error",
+                                                "message", "Failed to send email. Please try again later.");
+                                    }
                                 }
                                 RequestData requestData = new RequestData(year, batch);
                                 eventSequenceBiweekly_V2_multiThreaded(requestData, year_batch);
@@ -144,9 +169,13 @@ public final class PayloadHandler {
                             }
                             READ_LOCK.lock();
                             if (cachedDataMap.containsKey(year_batch)){
-                                EmailService.sendBiweeklyEmailWithAttachment(email_address, year_batch, cachedDataMap.get(year_batch));
-                                return Map.of("status", "success",
-                                        "message", "Success! Please check your email inbox.");
+                                if (EmailService.sendBiweeklyEmailWithAttachment(email_address, year_batch, cachedDataMap.get(year_batch))){
+                                    return Map.of("status", "success",
+                                            "message", "Success! Please check your email inbox.");
+                                }else{
+                                    return Map.of("status", "error",
+                                            "message", "Failed to send email. Please try again later.");
+                                }
                             }
                         }
                     }finally {
@@ -204,6 +233,7 @@ public final class PayloadHandler {
     }
 
     private static void eventSequenceBiweekly_V2_multiThreaded(RequestData requestData, final String year_batch) {
+        // Make sure no trailing data left from previous computation
         DATA_CENTER.clearAllApiData();
         Thread t1 = new Thread(() -> {
             Mono<String> monoJiraResp = APIQueryService.fetchJiraBiweeklyAPI_V2(requestData);
@@ -233,9 +263,7 @@ public final class PayloadHandler {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         ZipService.compressFileToZip(year_batch);
-//        EmailService.sendBiweeklyEmailWithAttachment_V2();
         String emailContent = EmailHTML.compileEmailHTMLContent(false);
         String targetZip = ZipService.getZipFilePath(year_batch);
         byte[] zipFileByte;
@@ -245,8 +273,12 @@ public final class PayloadHandler {
             zipFileByte = null;
         }
         DATA_CENTER.getBatchCachedDataMap().put(year_batch, new CachedData(emailContent, targetZip, zipFileByte));
+        // Once we have cached the finalized data, we can clear the original source api data
         DATA_CENTER.clearAllApiData();
+        // With the final zip created, we can safely delete the
+        // temporary directory for holding the various files
         DirectoryService.delDir(year_batch);
+        // Schedule to delete the cached data to ensure freshness
         new BackgroundService().scheduleDeleteBiweeklyCachedData(year_batch);
     }
 }
